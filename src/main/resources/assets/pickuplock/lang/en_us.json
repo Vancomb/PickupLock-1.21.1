@@ -1,0 +1,6 @@
+{
+  "key.categories.pickuplock": "Pickup Lock",
+  "key.pickuplock.toggle": "Toggle Pickup Lock",
+
+  "pickuplock.button.narration": "Toggle item pickup lock"
+}
