@@ -7,3 +7,8 @@ pluginManagement {
 plugins {
     id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
 }
+
+// Pin the Gradle project name so it never falls back to the folder name. Without this, renaming
+// the project directory (as happened from "...1.22.1" to "...1.21.1") leaves IntelliJ showing a
+// stale run-configuration label by the play button.
+rootProject.name = 'Pickup Lock-1.21.1'
