@@ -3,7 +3,9 @@ package net.vancomb.pickuplock;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.multiplayer.ClientPacketListener;
@@ -40,6 +42,7 @@ public class PickupLockClient {
         modEventBus.addListener(PickupLockClient::onRegisterKeyMappings);
 
         NeoForge.EVENT_BUS.addListener(PickupLockClient::onScreenInit);
+        NeoForge.EVENT_BUS.addListener(PickupLockClient::onScreenRender);
         NeoForge.EVENT_BUS.addListener(PickupLockClient::onClientTick);
         NeoForge.EVENT_BUS.addListener(PickupLockClient::onLoggingOut);
     }
@@ -53,6 +56,22 @@ public class PickupLockClient {
         Screen screen = event.getScreen();
         if ((screen instanceof InventoryScreen || screen instanceof CreativeModeInventoryScreen) && serverHasMod()) {
             event.addListener(new LockButton());
+        }
+    }
+
+    /**
+     * Draw the lock icon after the screen has finished rendering, so it sits above the slots, item
+     * stacks and the creative inventory tab's player model. The button widget still handles input;
+     * it only skips drawing itself in the widget layer, where that content would bury it.
+     */
+    private static void onScreenRender(ScreenEvent.Render.Post event) {
+        if (!(event.getScreen() instanceof AbstractContainerScreen<?> screen)) {
+            return;
+        }
+        for (GuiEventListener child : screen.children()) {
+            if (child instanceof LockButton button) {
+                button.renderOnTop(event.getGuiGraphics());
+            }
         }
     }
 

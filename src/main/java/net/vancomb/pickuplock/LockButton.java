@@ -39,6 +39,10 @@ public class LockButton extends AbstractButton {
 
     @Override
     protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        // Only keep the button's position in sync here. The icon itself is drawn later, from a
+        // Render.Post handler (see renderOnTop), because the container screen paints its slots,
+        // items and - on the creative inventory tab - the 3D player model on top of the widget
+        // layer, which would otherwise bury the button on that tab.
         if (Minecraft.getInstance().screen instanceof AbstractContainerScreen<?> screen) {
             if (dragging) {
                 // Follow the cursor, clamped on-screen, until the mouse button comes back up.
@@ -58,7 +62,15 @@ public class LockButton extends AbstractButton {
                 setY(screen.getGuiTop() + configY().get());
             }
         }
+    }
 
+    /**
+     * Draw the icon above everything the screen has already painted. Called from a
+     * {@code ScreenEvent.Render.Post} handler so it layers over the slots, item stacks and the
+     * creative inventory tab's player model; drawing it in {@link #renderWidget} would leave it
+     * hidden behind those on that tab.
+     */
+    void renderOnTop(GuiGraphics graphics) {
         ResourceLocation icon = PickupLock.clientLocked ? LOCKED_ICON : UNLOCKED_ICON;
         graphics.blit(icon, getX(), getY(), SIZE, SIZE, 0.0F, 0.0F, TEXTURE_SIZE, TEXTURE_SIZE, TEXTURE_SIZE, TEXTURE_SIZE);
     }
